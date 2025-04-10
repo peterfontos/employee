@@ -1,0 +1,43 @@
+services:
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  populate:
+    build: ./server
+    container_name: populate
+    command: ["node", "populate/populate.js"]
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    restart: "no"
+
+  server:
+    build: ./server
+    container_name: server
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+      - populate
+    restart: unless-stopped
+
+  client:
+    build: ./client
+    container_name: client
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
