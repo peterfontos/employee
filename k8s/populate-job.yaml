@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: employee-populate
+spec:
+  template:
+    spec:
+      containers:
+        - name: populate
+          image: faboknorbert/employee-populate-job:latest
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-credentials
+                  key: mongo-uri
+      restartPolicy: OnFailure
